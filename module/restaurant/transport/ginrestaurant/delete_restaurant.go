@@ -4,18 +4,18 @@ import (
 	"learn_golang/common"
 	"learn_golang/component/appctx"
 	restaurantbiz "learn_golang/module/restaurant/biz"
-	restaurantmodel "learn_golang/module/restaurant/model"
 	restaurantstorage "learn_golang/module/restaurant/storage"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CreateRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
+func DeleteRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		db := appCtx.GetMainDBConnection()
-		var data restaurantmodel.RestaurantCreate
-		if err := c.ShouldBind(&data); err != nil {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -24,9 +24,9 @@ func CreateRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 		}
 
 		store := restaurantstorage.NewSQLStore(db)
-		biz := restaurantbiz.NewCreateRestaurantBiz(store)
+		biz := restaurantbiz.NewDeleteRestaurantBiz(store)
 
-		if err := biz.CreateRestaurant(c.Request.Context(), &data); err != nil {
+		if err := biz.DeleteRestaurant(c.Request.Context(), id); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -34,6 +34,6 @@ func CreateRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data.Id))
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 	}
 }
