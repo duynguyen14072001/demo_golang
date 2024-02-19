@@ -2,6 +2,7 @@ package main
 
 import (
 	"learn_golang/component/appctx"
+	"learn_golang/middleware"
 	"learn_golang/module/restaurant/transport/ginrestaurant"
 	"log"
 	"net/http"
@@ -36,14 +37,15 @@ func main() {
 	}
 
 	db = db.Debug()
+	appContext := appctx.NewAppContext(db)
 	r := gin.Default()
+	r.Use(middleware.Recover(appContext))
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"data": "pong",
 		})
 	})
-
-	appContext := appctx.NewAppContext(db)
 
 	//POST
 	v1 := r.Group("/v1")

@@ -2,7 +2,7 @@ package restaurantbiz
 
 import (
 	"context"
-	"errors"
+	"learn_golang/common"
 	restaurantmodel "learn_golang/module/restaurant/model"
 )
 
@@ -25,13 +25,13 @@ func NewDeleteRestaurantBiz(store DeleteRestaurantStore) *deleteRestaurantBiz {
 func (biz *deleteRestaurantBiz) DeleteRestaurant(context context.Context, id int) error {
 	oldData, err := biz.store.FindDataWithCondition(context, map[string]interface{}{"id": id})
 	if err != nil {
-		return err
+		return common.ErrEntityNotFound(restaurantmodel.EntityName, err)
 	}
 	if oldData.Status == 0 {
-		return errors.New("data has been delete")
+		return common.ErrCannotDeleteEntity(restaurantmodel.EntityName, nil)
 	}
 	if err := biz.store.Delete(context, id); err != nil {
-		return err
+		return common.ErrCannotDeleteEntity(restaurantmodel.EntityName, nil)
 	}
 
 	return nil
